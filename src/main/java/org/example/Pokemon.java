@@ -71,7 +71,7 @@ public class Pokemon {
         }
     }
 
-    public void update(int id) {
+    public void update(int id, int level, int trainer_id) {
         final String update = "UPDATE pokemons SET name = ?, level = ?, trainer_id = ? WHERE id = ?";
 
         try (Connection connection = HikariDBSource.getConnection()) {

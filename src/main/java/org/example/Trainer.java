@@ -6,11 +6,13 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Trainer {
     private int id;
     private String name;
     private Boolean isCatching;
+    private List<Pokemon> caughtPokemons;
 
     public Trainer() {
     }
@@ -18,6 +20,7 @@ public class Trainer {
     public List<Trainer> getAllTrainers() {
         final String query = "SELECT * FROM trainers";
         List<Trainer> trainers = new ArrayList<>();
+        Pokemon pokemon = new Pokemon();
 
         try (Connection connection = HikariDBSource.getConnection()) {
             final PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -28,6 +31,7 @@ public class Trainer {
                 trainer.setId(resultSet.getInt("id") != 0 ? resultSet.getInt("id") : null);
                 trainer.setName(resultSet.getString("name"));
                 trainer.setCatching(resultSet.getBoolean("isCatching"));
+                trainer.setCaughtPokemons(pokemon.getAllPokemons().stream().filter(e -> e.getTrainer_id() != null && e.getTrainer_id() == trainer.getId()).toList());
 
                 trainers.add(trainer);
             }
@@ -78,7 +82,22 @@ public class Trainer {
     }
 
     public void printTrainer(Trainer t) {
-        System.out.println("Trainer's name: " + t.getName() + ". " + "Is catching: " + t.getCatching() + ". " + "With ID: " + t.getId());
+        System.out.println("Trainer's name: " + t.getName() + ". " + "Is catching: " + t.getCatching() + ". " + "With ID: " + t.getId() + ". " + "Caught pokemons count: " + t.getCaughtPokemons().size());
+    }
+
+    public void catchPokemon(Trainer t) {
+        Pokemon pokemons = new Pokemon();
+        if (t.isCatching) {
+            Optional<Pokemon> availPokemon = pokemons.getAllPokemons().stream()
+                    .filter(p -> p.getTrainer_id() == null)
+                    .findAny();
+            if (availPokemon.isPresent()) {
+                pokemons.update(availPokemon.get().getId(), availPokemon.get().getLevel(), t.getId());
+                System.out.println("Pokemon " + availPokemon.get().getName() + " has been caught by trainer " + t.getName());
+            } else {
+                System.out.println("No available pokemon to catch!");
+            }
+        }
     }
 
     public String getName() {
@@ -105,25 +124,34 @@ public class Trainer {
         this.id = id;
     }
 
-    @Override
-    public String toString() {
-        return "Trainer{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", isCatching=" + isCatching +
-                '}';
+    public List<Pokemon> getCaughtPokemons() {
+        return caughtPokemons;
+    }
+
+    public void setCaughtPokemons(List<Pokemon> caughtPokemons) {
+        this.caughtPokemons = caughtPokemons;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Trainer trainer = (Trainer) o;
-        return Objects.equals(id, trainer.id) && Objects.equals(name, trainer.name) && Objects.equals(isCatching, trainer.isCatching);
+        return id == trainer.id && Objects.equals(name, trainer.name) && Objects.equals(isCatching, trainer.isCatching) && Objects.equals(caughtPokemons, trainer.caughtPokemons);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, isCatching);
+        return Objects.hash(id, name, isCatching, caughtPokemons);
+    }
+
+    @Override
+    public String toString() {
+        return "Trainer{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", isCatching=" + isCatching +
+                ", caughtPokemons=" + caughtPokemons +
+                '}';
     }
 
 }
