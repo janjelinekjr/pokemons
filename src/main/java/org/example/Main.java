@@ -1,5 +1,8 @@
 package org.example;
 
+import org.example.service.PokemonService;
+import org.example.service.TrainerService;
+
 import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.Optional;
@@ -9,8 +12,8 @@ public class Main {
     public static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) throws SQLException {
-        final Trainer trainer = new Trainer();
-        final Pokemon pokemon = new Pokemon();
+        final TrainerService trainerService = new TrainerService();
+        final PokemonService pokemonService = new PokemonService();
 
         boolean running = true;
 
@@ -20,25 +23,26 @@ public class Main {
 
             switch (input) {
                 case 1:
-                    trainer.getAllTrainers().forEach(t -> t.printTrainer(t));
+                    trainerService.getAllTrainers().forEach(t -> t.printTrainer(t));
                     continue;
                 case 2:
-                    pokemon.getAllPokemons().forEach(p -> p.printPokemon(p));
+                    pokemonService.getAllPokemons().forEach(p -> p.printPokemon(p));
                     continue;
                 case 3:
-                    trainer.getAllTrainers().stream()
+                    trainerService.getAllTrainers().stream()
                             .sorted(Comparator.comparing((Trainer t) -> t.getCaughtPokemons().size()).reversed())
                             .forEach(t -> t.printTrainer(t));
                     continue;
                 case 4:
-                    pokemon.getAllPokemons().stream()
+                    pokemonService.getAllPokemons().stream()
                             .filter(p -> p.getTrainer_id() == null)
                             .forEach(p -> p.printPokemon(p));
                     continue;
                 case 5:
+                    Trainer trainer = new Trainer();
                     System.out.print("Insert trainer's ID: ");
                     int trainerId = getIntInput(false);
-                    Optional<Trainer> wantedTrainer = trainer.getAllTrainers().stream()
+                    Optional<Trainer> wantedTrainer = trainerService.getAllTrainers().stream()
                             .filter(t -> t.getId() == trainerId)
                             .findFirst();
 

@@ -2,7 +2,7 @@ CREATE TABLE pokemons.trainers
 (
     id         INT     NOT NULL AUTO_INCREMENT,
     name       VARCHAR(45) NULL,
-    isCatching TINYINT NOT NULL,
+    is_catching TINYINT NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -15,7 +15,7 @@ CREATE TABLE pokemons.pokemons
     FOREIGN KEY (trainer_id) REFERENCES trainers (id)
 );
 
-INSERT INTO trainers (name, isCatching)
+INSERT INTO trainers (name, is_catching)
 VALUES ('Ash', 1),
        ('Misty', 0),
        ('Brock', 1);
